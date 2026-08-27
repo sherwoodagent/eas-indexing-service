@@ -243,6 +243,32 @@ export const EAS_CHAIN_CONFIGS: EASChainConfig[] = [
     etherscanURL: "https://teloscan.io",
     rpcProvider: "https://mainnetv2.telos.net/",
   },
+  // Robinhood Chain mainnet (Arbitrum Orbit). EAS is not a predeploy here —
+  // Sherwood deployed it (sherwoodagent/sherwood-protocol#278).
+  //
+  // contractStartBlock is EXCLUSIVE — utils.ts starts scanning at
+  // `fromBlock + 1` — so this is one block BEFORE the CREATE2 deploy landed
+  // (47096606-47096607). Setting it any later risks skipping the six
+  // `Registered` events, and `Attestation.schemaId` is a Prisma FK to
+  // `Schema.id`, so every later attestation insert then dies with
+  // `Attestation_schemaId_fkey`. Reproduced against a reference deployment
+  // before settling on this value.
+  //
+  // rpcProvider is env-driven. The public endpoint
+  // (rpc.mainnet.chain.robinhood.com) sits behind Cloudflare and challenges
+  // non-browser clients under sustained load; Robinhood's own docs call it
+  // "not recommended for production use".
+  {
+    chainId: 4663,
+    chainName: "robinhood",
+    subdomain: "robinhood.",
+    version: "1.4.0",
+    contractAddress: "0x7d70441Bb10AcE5d9771dc0b6205D89ddf63205B",
+    schemaRegistryAddress: "0xdd7521Ba10773e556Defa6D6c133cB2F663b5c26",
+    contractStartBlock: 47096605,
+    etherscanURL: "https://robinhoodchain.blockscout.com",
+    rpcProvider: process.env.ROBINHOOD_RPC_URL || "",
+  },
   {
     chainId: 1868,
     chainName: "soneium",
