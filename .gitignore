@@ -2,14 +2,16 @@
 # is a DEPLOYED service, not a template: yarn.lock is committed so the Docker
 # build is reproducible. Without it, transitive deps float and the build breaks
 # on unrelated days — which is exactly how the node-18 base started failing.
-!yarn.lock
-
 # We don't want lockfiles in stacks, as people could use a different package manager
 # This part will be removed by `remix.init`
 package-lock.json
 yarn.lock
 pnpm-lock.yaml
 pnpm-lock.yml
+
+# ...except yarn.lock (see above). This negation MUST come after the rule it
+# overrides — gitignore takes the last matching pattern.
+!yarn.lock
 
 node_modules
 
