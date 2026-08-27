@@ -1,6 +1,12 @@
 # node 20, not upstream's 18: transitive deps (brace-expansion@5) now require
 # "20 || >=22" and the image fails `yarn install` on 18.
-FROM node:20-alpine
+#
+# Debian slim, not Alpine: Prisma 4.13's query/migration engines link against
+# OpenSSL 1.1, and current Alpine ships OpenSSL 3. On alpine the engine fails to
+# load and every `prisma db push` dies with
+#   "Could not parse migration engine response: ... 'Error load'... is not valid JSON"
+# Debian bookworm has an engine target Prisma 4.13 supports.
+FROM node:20-slim
 WORKDIR /app
 ENV NODE_ENV=production
 
@@ -18,7 +24,9 @@ ENV POLLING_INTERVAL=${POLLING_INTERVAL}
 COPY . .
 
 COPY entrypoint.sh /app/entrypoint.sh
-RUN apk update && apk add --no-cache postgresql-client
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends postgresql-client openssl ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
 RUN chmod +x /app/entrypoint.sh
 RUN yarn install
 ENTRYPOINT ["/app/entrypoint.sh"]
