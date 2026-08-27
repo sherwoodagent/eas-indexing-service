@@ -1,4 +1,6 @@
-FROM node:18-alpine
+# node 20, not upstream's 18: transitive deps (brace-expansion@5) now require
+# "20 || >=22" and the image fails `yarn install` on 18.
+FROM node:20-alpine
 WORKDIR /app
 ENV NODE_ENV=production
 
